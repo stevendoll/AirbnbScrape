@@ -774,6 +774,6 @@ if __name__ == '__main__':
     DetailResults = iterateDetail(MainResults)
     
     #Write Out Results To CSV File, using function I defined
-    writeToCSV(DetailResults, 'CambridgeResults.csv')
+    writeToCSV(DetailResults, 'TestNewWriter.csv')
     
     
