@@ -11,7 +11,8 @@ import mechanize
 import cookielib
 from lxml import html
 import csv
-import re
+import cStringIO
+import codecs
 from random import randint
 from time import sleep
 from lxml.etree import tostring
@@ -754,12 +755,29 @@ def writeToCSV(resultDict, outfile):
          'RespRate','RespTime', \
          'S_Accomodates','S_Bathrooms','S_BedType','S_Bedrooms', \
          'S_CheckIn','S_Checkout','S_NumBeds','S_PropType','ShortDesc']
-    
+        
     with open(outfile, 'wb') as f:
         w = csv.DictWriter(f, fieldnames=colnames)
         w.writeheader()
-        w.writerows(resultDict)     
+        w.writerows([clean_dict(v) for v in resultDict])
+
+def clean_dict(obj):
+    """
+    use the clean() function to clean all values in the dictionary of 
+    unwanted characters
+    """
+    return {k:clean(v) for (k,v) in obj.items()}
+
+def clean(stuff):
+    """This is a cheap way of getting rid of some unicode characters that are
+    causing some problems"""
+    
+    if type(stuff) == unicode:
+        #TODO:  Use Regex instead of this
+        return stuff.replace(u'\xb7', '').replace(u'\u2022', '').replace(' ', '')
         
+    return stuff
+
 #######################################
 #  Testing ############################
 #######################################
@@ -771,9 +789,9 @@ if __name__ == '__main__':
     
     #Take The Main Results From Previous Step and Iterate Through Each Listing
     #To add more detail
-    DetailResults = iterateDetail(MainResults)
+    #DetailResults = iterateDetail(MainResults)
     
     #Write Out Results To CSV File, using function I defined
-    writeToCSV(DetailResults, 'TestNewWriter.csv')
+    writeToCSV(MainResults, 'OtherWriter.csv')
     
     
