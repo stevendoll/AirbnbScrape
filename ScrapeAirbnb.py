@@ -130,7 +130,7 @@ def ParseMainXML(url= 'https://www.airbnb.com/s/Cambridge--MA--United-States', p
             dat['Title'] = listing.attrib.get('data-name', 'Unknown')
             dat['ListingID'] = listing.attrib.get('data-id', 'Unknown')
             dat['UserID'] = listing.attrib.get('data-user', 'Unknown')
-            dat['Price'] = ''.join(listing.xpath('div//span[@class="h3 price-amount"]/text()'))
+            dat['Price'] = ''.join(listing.xpath('div//span[@class="h3 text-contrast price-amount"]/text()'))
             dat['PageCounter'] = n
             dat['OverallCounter'] = n * pg
             dat['PageNumber'] = pg
