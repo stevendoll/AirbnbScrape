@@ -130,7 +130,7 @@ def ParseMainXML(url= 'https://www.airbnb.com/s/Cambridge--MA--United-States', p
             dat['Title'] = listing.attrib.get('data-name', 'Unknown')
             dat['ListingID'] = listing.attrib.get('data-id', 'Unknown')
             dat['UserID'] = listing.attrib.get('data-user', 'Unknown')
-            dat['Price'] = ''.join(listing.xpath('div//span[@class="h3 price-amount"]/text()'))
+            dat['Price'] = ''.join(listing.xpath('div//span[@class="h3 text-contrast price-amount"]/text()'))
             dat['PageCounter'] = n
             dat['OverallCounter'] = n * pg
             dat['PageNumber'] = pg
@@ -433,7 +433,7 @@ def getMemberDate(soup, ListingID):
     membership_date = 'Not Found'    
     
     try:
-        host_member = soup.find_all("div", {"class" : "col-6"})[-2]
+        host_member = soup.find_all("div", {"class" : "col-md-6"})[-2]
         membership_date = host_member.find_all("div")[1].text.encode('utf8').strip("\n ")
         membership_date = membership_date.replace("Member since", "")
         return membership_date
@@ -487,7 +487,7 @@ def getAboutListing(tree, ListingID):
     """  
     try:
     #Go To The Panel-Body
-        elements = tree.xpath('//div[@class="panel-body"]/h4')
+        elements = tree.xpath('//div[@class="row-space-8 row-space-top-8"]/h4')
 
         #Search For "About This Listing" In Elements    
         for element in elements:
@@ -682,7 +682,7 @@ def getAmenitiesList(tree, ListingID):
     
     try:
         #Get Nodes That Contain The Grey Text, So That You Can Search For Sections
-        elements = tree.xpath('//*[@class="text-muted"]')
+        elements = tree.xpath('//*[@class="row amenities"]/div')
         
           #find The price portion of the page, 
           #then go back up one level and sideways one level
@@ -804,6 +804,7 @@ if __name__ == '__main__':
     DetailResults = iterateDetail(MainResults)
     
     #Write Out Results To CSV File, using function I defined
-    writeToCSV(DetailResults, 'OtherWriter.csv')
+    writeToCSV(DetailResults, 'OutputFile.csv')
+    
     
     
