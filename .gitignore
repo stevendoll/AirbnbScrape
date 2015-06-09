@@ -3,3 +3,5 @@
 *.twbx
 *.xls
 venv
+test
+test_debug.py
