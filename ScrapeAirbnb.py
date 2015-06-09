@@ -519,7 +519,7 @@ def getSpaceInfo(tree, ListingID = 'Test'):
     
     try:
         #Get Nodes That Contain The Grey Text, So That You Can Search For Sections
-        elements = tree.xpath('//*[@class="text-muted"]')
+        elements = tree.xpath('//div[@class="row"]/div[@class="col-md-3"]/div[@class="text-muted"]')
     
           #find The space portion of the page, 
           #then go back up one level and sideways one level
@@ -782,16 +782,14 @@ def clean(stuff):
 #  Testing ############################
 #######################################
 
-if __name__ == '__main__':   
+if __name__ == '__main__':
     
     #Iterate Through Main Page To Get Results
     MainResults = IterateMainPage('Cambridge--MA', 1)
     
     #Take The Main Results From Previous Step and Iterate Through Each Listing
     #To add more detail
-    #DetailResults = iterateDetail(MainResults)
+    DetailResults = iterateDetail(MainResults)
     
     #Write Out Results To CSV File, using function I defined
     writeToCSV(MainResults, 'OtherWriter.csv')
-    
-    
