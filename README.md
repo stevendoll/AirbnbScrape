@@ -3,11 +3,7 @@ AirbnbScrape
 
 Python Function To Scrape Airbnb
 
-The website for this project is: http://hamelsmu.github.io/AirbnbScrape/
-
-This is a working repository for the class project for [Harvard CS109 Data Science](http://cs109.github.io/2014/), Fall 2014 semester.
-
-
+This project is for purely academic purposes to demonstrate the ability to scrape data from the web and analyze it for an introductory Data Sciene class.
 
 
 Purpose:
@@ -23,8 +19,7 @@ We wanted to be able to study this data, visualize it and see if we could glean 
 ####Scraping
 - **ScrapingAirbnb.py:**  this is the code that was used to scrape Airbnb.com  this code is very modular and can be re-used to scrape airbnb data for any location.  
 
-####Analysis
-- **AirbnbWrapUp.ipynb**: this file discusses analyses that was conducted with the scraped data.  
+####Analysis 
 - **DataCleanAirbnb.py**:  this file contains supporting functions for AirbnbWrapup.ipyb.  Used to clean the dataset and parse/remove features as appropriate.
 - **DummyOneHot.py**:  this file contains items that are located in AirbnbWrapup.ipynb.  Used to dummy code categorical variables.
 
