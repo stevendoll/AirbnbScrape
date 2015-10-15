@@ -3,7 +3,7 @@ import pandas as pd
 
 def cleanGender(x):
     """
-    This is a helper funciton that will help cleanup the gender variable
+    This is a helper funciton that will help cleanup the gender variable.
     """
     if x in ['female', 'mostly_female']:
         return 'female'
