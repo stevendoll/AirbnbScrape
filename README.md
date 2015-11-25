@@ -3,8 +3,6 @@ AirbnbScrape
 
 Python Function To Scrape Airbnb
 
-This project is for purely academic purposes to demonstrate the ability to scrape data from the web and analyze it for an introductory Data Sciene class.
-
 
 Purpose:
 As a host of airbnb, we wanted to optimize the price of our listing, and wanted to understand things like: 
