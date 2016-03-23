@@ -7,7 +7,7 @@ CS109 Harvard Intro To Data Science
 Scraping Airbnb
 """
 
-import mechanize
+from robobrowser import RoboBrowser
 import http.cookiejar
 from lxml import html
 import csv
@@ -21,7 +21,7 @@ import bs4
 
 
 # Browser
-br = mechanize.Browser()
+br = RoboBrowser()
 
 
 #learned necessary configuration from
