@@ -8,10 +8,10 @@ Scraping Airbnb
 """
 
 import mechanize
-import cookielib
+import http.cookiejar
 from lxml import html
 import csv
-import cStringIO
+import io
 import codecs
 from random import randint
 from time import sleep
@@ -28,7 +28,7 @@ br = mechanize.Browser()
 #http://stockrt.github.io/p/emulating-a-browser-in-python-with-mechanize/
 
 # Allow cookies
-cj = cookielib.LWPCookieJar()
+cj = http.cookiejar.LWPCookieJar()
 br.set_cookiejar(cj)
 
 # Browser options
@@ -74,7 +74,7 @@ def IterateMainPage(location_string, loop_limit):
 
     try:
         for n in range(1, loop_limit+1):
-            print 'Processing Main Page %s out of %s' % (str(n), str(loop_limit))
+            print('Processing Main Page %s out of %s' % (str(n), str(loop_limit)))
             #Implement random time delay for scraping
             sleep(randint(0,2))
             current_url = ''.join([base_url, location_string, page_url, str(n)])
@@ -82,9 +82,9 @@ def IterateMainPage(location_string, loop_limit):
 
 
     except:
-        print 'This URL did not return results: %s ' % current_url
+        print('This URL did not return results: %s ' % current_url)
 
-    print 'Done Processing Main Page'
+    print('Done Processing Main Page')
     return MainResults
 
 
@@ -152,7 +152,7 @@ def ParseMainXML(url= 'https://www.airbnb.com/s/Cambridge--MA--United-States', p
         return ListingDB
 
     except:
-        print 'Error Parsing Page - Skipping: %s' % url
+        print('Error Parsing Page - Skipping: %s' % url)
         #if there is an error, just return an empty list
         return ListingDB
 
@@ -176,7 +176,7 @@ def iterateDetail(mainResults):
 
     for listing in mainResults:
         counter += 1
-        print 'Processing Listing %s out of %s' % (str(counter), str(len(mainResults)))
+        print('Processing Listing %s out of %s' % (str(counter), str(len(mainResults))))
 
         #Construct URL
         currentURL = ''.join([baseURL, str(listing['ListingID'])])
@@ -188,7 +188,7 @@ def iterateDetail(mainResults):
         DetailResults = collectDetail(tree, listing['ListingID'])
 
         #Collect Data
-        newListing = dict(listing.items() + DetailResults.items())
+        newListing = dict(list(listing.items()) + list(DetailResults.items()))
 
         #Append To Final Results
         finalResults.append(newListing)
@@ -207,7 +207,7 @@ def fixDetail(mainResults, indexList):
     ######Only Modify This Part When You Want To Redo Certain Listings!!!###
 
     for i in indexList:
-        print 'fixing index %s' % str(i)
+        print('fixing index %s' % str(i))
         listingID = str(finalResults[i]['ListingID'])
         currentURL = ''.join([baseURL, listingID])
 
@@ -218,7 +218,7 @@ def fixDetail(mainResults, indexList):
         DetailResults = collectDetail(tree, listingID)
 
         #Collect Data
-        newListing = dict(finalResults[i].items() + DetailResults.items())
+        newListing = dict(list(finalResults[i].items()) + list(DetailResults.items()))
 
         #Append To Final Results
         finalResults[i] = newListing
@@ -244,7 +244,7 @@ def getTree(url):
     except:
         #Pass An Empty String And Error Handling Of Children Functions Will Do
         #Appropriate Things
-        print 'Was not able to fetch data from %s' % url
+        print('Was not able to fetch data from %s' % url)
         return ''
 
 
@@ -406,7 +406,7 @@ def getHostName(soup, ListingID):
         return host_name
 
     except:
-        print 'Unable to parse host name for listing id: %s' % str(ListingID)
+        print('Unable to parse host name for listing id: %s' % str(ListingID))
         return host_name
 
 def getHostResponse(soup, ListingID):
@@ -422,7 +422,7 @@ def getHostResponse(soup, ListingID):
         return response_rate, response_time
 
     except:
-        print 'Unable to parse response time for listing id: %s' % str(ListingID)
+        print('Unable to parse response time for listing id: %s' % str(ListingID))
         return response_rate, response_time
 
 
@@ -439,7 +439,7 @@ def getMemberDate(soup, ListingID):
         return membership_date
 
     except:
-        print 'Unable to parse membership date for listing id: %s' % str(ListingID)
+        print('Unable to parse membership date for listing id: %s' % str(ListingID))
         return membership_date
 
 
@@ -471,7 +471,7 @@ def getStars(soup, ListingID):
         return accuracy, communication, cleanliness, location, checkin, value
 
     except:
-        print 'Unable to parse stars listing id: %s' % str(ListingID)
+        print('Unable to parse stars listing id: %s' % str(ListingID))
         return accuracy, communication, cleanliness, location, checkin, value
 
 #########################################
@@ -496,7 +496,7 @@ def getAboutListing(tree, ListingID):
                 return element.getnext().text
 
     except:
-        print 'Error finding *About Listing* for listing ID: %s' % ListingID
+        print('Error finding *About Listing* for listing ID: %s' % ListingID)
         return 'No Description Found'
 
 
@@ -587,7 +587,7 @@ def getSpaceInfo(tree, ListingID = 'Test'):
         return dat
 
     except:
-        print 'Error in getting Space Elements for listing iD: %s' % str(ListingID)
+        print('Error in getting Space Elements for listing iD: %s' % str(ListingID))
         return dat
 
 #######################################
@@ -663,7 +663,7 @@ def getPriceInfo(tree, ListingID):
         return dat
 
     except:
-        print 'Error in getting Space Elements for listing iD: %s' % str(ListingID)
+        print('Error in getting Space Elements for listing iD: %s' % str(ListingID))
         return dat
 
 #########################################
@@ -703,7 +703,7 @@ def getAmenitiesList(tree, ListingID):
         return list(set(amenities))
 
     except:
-        print 'Error in getting amenities for listing iD: %s' % str(ListingID)
+        print('Error in getting amenities for listing iD: %s' % str(ListingID))
         return amenities
 
 
@@ -732,7 +732,7 @@ def getAmenities(tree, ListingID):
 
     amenities = getAmenitiesList(tree, ListingID)
 
-    for amenity in dat.keys():
+    for amenity in list(dat.keys()):
         if amenity in amenities:
             dat[amenity] = 1
 
@@ -745,13 +745,13 @@ class DictUnicodeWriter(object):
 
     def __init__(self, f, fieldnames, dialect=csv.excel, encoding="utf-8", **kwds):
         # Redirect output to a queue
-        self.queue = cStringIO.StringIO()
+        self.queue = io.StringIO()
         self.writer = csv.DictWriter(self.queue, fieldnames, dialect=dialect, **kwds)
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()
 
     def writerow(self, D):
-        self.writer.writerow({k:v.encode("utf-8") if isinstance(v, unicode) else v for k,v in D.items()})
+        self.writer.writerow({k:v.encode("utf-8") if isinstance(v, str) else v for k,v in list(D.items())})
         # Fetch UTF-8 output from the queue ...
         data = self.queue.getvalue()
         data = data.decode("utf-8")

@@ -87,7 +87,7 @@ def cleanRespRate(x):
     else:
         return val
 
-def dummyCode(x,  cols = [u'BookInstantly', u'Cancellation', u'RespTime', u'S_BedType', u'S_PropType', u'SD_PropType',
+def dummyCode(x,  cols = ['BookInstantly', 'Cancellation', 'RespTime', 'S_BedType', 'S_PropType', 'SD_PropType',
                           'HostGender']):
     """
     This function turns selected categorical variables into dummy values
