@@ -122,7 +122,7 @@ def ParseMainXML(url= 'https://www.airbnb.com/s/Cambridge--MA--United-States', p
         listings = tree.xpath('//div[@class="listing"]')
 
         #TODO: add error handling
-        for listing in listings:
+        for listing in listings[0:1]:
             dat = {}
             dat['baseurl'] = url
             dat['Lat'] = listing.attrib.get('data-lat', 'Unknown')
@@ -155,7 +155,6 @@ def ParseMainXML(url= 'https://www.airbnb.com/s/Cambridge--MA--United-States', p
         print 'Error Parsing Page - Skipping: %s' % url
         #if there is an error, just return an empty list
         return ListingDB
-
 
 
 #######################################
@@ -388,7 +387,7 @@ def TreeToSoup(treeObject):
     This function converts an HTML element tree to a soup object
     """
     source = tostring(treeObject)
-    soup = bs4.BeautifulSoup(source)
+    soup = bs4.BeautifulSoup(source, "lxml")
     return soup
 
 #############################################
@@ -401,7 +400,8 @@ def getHostName(soup, ListingID):
     host_name = 'Not Found'
 
     try:
-        host_name = soup.find_all("h4", {"class" : "row-space-4"})[2].text.strip("\n ").encode('utf8')
+        print soup.find_all("h3", {"class" : "row-space-1"})
+        host_name = soup.find_all("h3", {"class" : "row-space-1"})[0].text.strip("\n ").encode('utf8')
         host_name = host_name.split(", ")[1]
         return host_name
 
@@ -487,13 +487,13 @@ def getAboutListing(tree, ListingID):
     """
     try:
     #Go To The Panel-Body
-        elements = tree.xpath('//div[@class="row-space-8 row-space-top-8"]/h4')
-
+        elements = tree.xpath('//h4[@class="space-4 text-center-sm"]/span')
+        
         #Search For "About This Listing" In Elements
         for element in elements:
-            if element.text.find('About This Listing') >= 0:
+            if element.text.find('About this listing') >= 0:
                 #When You Find, it return the text that comes afterwards
-                return element.getnext().text
+                return element.getparent().getnext().getchildren()[0].getchildren()[0].text #.text
 
     except:
         print 'Error finding *About Listing* for listing ID: %s' % ListingID
@@ -519,10 +519,10 @@ def getSpaceInfo(tree, ListingID = 'Test'):
 
     try:
         #Get Nodes That Contain The Grey Text, So That You Can Search For Sections
-        elements = tree.xpath('//div[@class="row"]/div[@class="col-md-3"]/div[@class="text-muted"]')
+        #elements = tree.xpath('//div[@class="row"]/div[@class="col-md-3 text-muted"]/span')
 
-          #find The space portion of the page,
-          #then go back up one level and sideways one level
+        #find The space portion of the page,
+        #then go back up one level and sideways one level
         for element in elements:
 
             if element.text.find('The Space') >= 0:
@@ -531,57 +531,57 @@ def getSpaceInfo(tree, ListingID = 'Test'):
                 break
 
         #Depth - First Search of The Target Node
-        descendants = targetelement.iterdescendants()
-
+        descendants = targetelement.getchildren()[0].iterdescendants()
+        
         for descendant in descendants:
             #check to make sure there is text in descendant
             if descendant.text:
                 ##Find Property Type##
                 if descendant.text.find('Property type:') >= 0:
-                    prop =  descendant.xpath('.//strong/*')
+                    prop =  descendant.getparent().xpath('.//strong')
 
                     if len(prop) >= 1:
                         dat['PropType'] = prop[0].text
 
                 ##Find Accomodates ####
                 if descendant.text.find('Accommodates:') >= 0:
-                    prop =  descendant.xpath('.//strong')
+                    prop =  descendant.getparent().xpath('.//strong')
                     if len(prop) >= 1:
                         dat['Accommodates'] = prop[0].text
 
                 ##Find Bedrooms ####
                 if descendant.text.find('Bedrooms:') >= 0:
-                    prop =  descendant.xpath('.//strong')
+                    prop =  descendant.getparent().xpath('.//strong')
                     if len(prop) >= 1:
                         dat['Bedrooms'] = prop[0].text
 
                 ##Find Bathrooms ####
                 if descendant.text.find('Bathrooms:') >= 0:
-                    prop =  descendant.xpath('.//strong')
+                    prop =  descendant.getparent().xpath('.//strong')
                     if len(prop) >= 1:
                         dat['Bathrooms'] = prop[0].text
 
                 ##Find Number of Beds ####
                 if descendant.text.find('Beds:') >= 0:
-                    prop =  descendant.xpath('.//strong')
+                    prop =  descendant.getparent().xpath('.//strong')
                     if len(prop) >= 1:
                         dat['NumBeds'] = prop[0].text
 
-               ##Find Bed Type ####
+                ##Find Bed Type ####
                 if descendant.text.find('Bed type:') >= 0:
-                    prop =  descendant.xpath('.//strong')
+                    prop =  descendant.getparent().xpath('.//strong')
                     if len(prop) >= 1:
                         dat['BedType'] = prop[0].text
 
-               ##Find Check In Time ####
+                ##Find Check In Time ####
                 if descendant.text.find('Check In:') >= 0:
-                    prop =  descendant.xpath('.//strong')
+                    prop =  descendant.getparent().xpath('.//strong')
                     if len(prop) >= 1:
                         dat['CheckIn'] = prop[0].text
 
                 ##Find Check Out Time ####
                 if descendant.text.find('Check Out:') >= 0:
-                    prop =  descendant.xpath('.//strong')
+                    prop =  descendant.getparent().xpath('.//strong')
                     if len(prop) >= 1:
                         dat['CheckOut'] = prop[0].text
         return dat
@@ -608,10 +608,10 @@ def getPriceInfo(tree, ListingID):
 
     try:
         #Get Nodes That Contain The Grey Text, So That You Can Search For Sections
-        elements = tree.xpath('//*[@class="text-muted"]')
-
-          #find The price portion of the page,
-          #then go back up one level and sideways one level
+        elements = tree.xpath('//div[@class="col-md-3 text-muted"]/span')
+        
+        #find The price portion of the page,
+        #then go back up one level and sideways one level
         for element in elements:
 
             if element.text.find('Prices') >= 0:
@@ -620,50 +620,51 @@ def getPriceInfo(tree, ListingID):
                 break
 
         #Depth - First Search of The Target Node
-        descendants = targetelement.iterdescendants()
+        descendants = targetelement.getchildren()[0].getchildren()[0].iterdescendants()
 
         for descendant in descendants:
             #check to make sure there is text in descendant
+                        
             if descendant.text:
                 ##Find Extra People Free ##
                 if descendant.text.find('Extra people:') >= 0:
-                    prop =  descendant.xpath('.//strong/*')
+                    prop =  descendant.getparent().xpath('.//strong')
                     if len(prop) >= 1:
                         dat['ExtraPeople'] = prop[0].text
 
                 ##Find Cleaning Fee ####
                 if descendant.text.find('Cleaning Fee:') >= 0:
-                    prop =  descendant.xpath('.//strong/*')
+                    prop =  descendant.getparent().xpath('.//strong')
                     if len(prop) >= 1:
                         dat['CleaningFee'] = prop[0].text
 
                 ##Find Security Deposit ####
                 if descendant.text.find('Security Deposit:') >= 0:
-                    prop =  descendant.xpath('.//strong/*')
+                    prop =  descendant.getparent().xpath('.//strong')
                     if len(prop) >= 1:
                         dat['SecurityDeposit'] = prop[0].text
 
                 ##Find Weekly Price ####
-                if descendant.text.find('Weekly Price:') >= 0:
-                    prop =  descendant.xpath('.//strong/*')
+                if descendant.text.find('Weekly discount:') >= 0:
+                    prop =  descendant.getparent().xpath('.//strong')
                     if len(prop) >= 1:
                         dat['WeeklyPrice'] = prop[0].text
 
                 ##Find Monthly Price ####
-                if descendant.text.find('Monthly Price:') >= 0:
-                    prop =  descendant.xpath('.//strong/*')
+                if descendant.text.find('Monthly discount:') >= 0:
+                    prop =  descendant.getparent().xpath('.//strong')
                     if len(prop) >= 1:
                         dat['MonthlyPrice'] = prop[0].text
 
                 ##Find Cancellation ####
                 if descendant.text.find('Cancellation:') >= 0:
-                    prop =  descendant.xpath('.//strong/*')
+                    prop =  descendant.getparent().xpath('.//strong')
                     if len(prop) >= 1:
                         dat['Cancellation'] = prop[0].text
         return dat
 
     except:
-        print 'Error in getting Space Elements for listing iD: %s' % str(ListingID)
+        print 'Error in getting Price Info for listing iD: %s' % str(ListingID)
         return dat
 
 #########################################
@@ -682,10 +683,10 @@ def getAmenitiesList(tree, ListingID):
 
     try:
         #Get Nodes That Contain The Grey Text, So That You Can Search For Sections
-        elements = tree.xpath('//*[@class="row amenities"]/div')
+        elements = tree.xpath('//div[@class="row amenities"]/div/span')
 
-          #find The price portion of the page,
-          #then go back up one level and sideways one level
+        #find The price portion of the page,
+        #then go back up one level and sideways one level
         for element in elements:
 
             if element.text.find('Amenities') >= 0:
@@ -693,11 +694,10 @@ def getAmenitiesList(tree, ListingID):
                 targetelement = element.getparent().getnext()
                 break
 
-        content = targetelement.xpath('//*[@class="expandable-content-full"]')
-
-
+        content = targetelement.getchildren()[0].getchildren()[0].getchildren()[0]
+        
         if len(content) >= 1:
-            for amenity in content[0].xpath('.//span/strong/text()'):
+            for amenity in content.xpath('.//div/span/span/text()'):
                 amenities.append(amenity.strip())
 
         return list(set(amenities))
@@ -731,7 +731,7 @@ def getAmenities(tree, ListingID):
            'Safety Card': 0, 'Fire Extinguisher': 0}
 
     amenities = getAmenitiesList(tree, ListingID)
-
+    
     for amenity in dat.keys():
         if amenity in amenities:
             dat[amenity] = 1
