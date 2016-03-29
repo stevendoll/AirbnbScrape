@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Created on Sat Nov  1 20:29:41 2014
 
@@ -122,7 +121,7 @@ def ParseMainXML(url= 'https://www.airbnb.com/s/Cambridge--MA--United-States', p
         listings = tree.xpath('//div[@class="listing"]')
 
         #TODO: add error handling
-        for listing in listings[0:1]:
+        for listing in listings:
             dat = {}
             dat['baseurl'] = url
             dat['Lat'] = listing.attrib.get('data-lat', 'Unknown')
@@ -400,9 +399,9 @@ def getHostName(soup, ListingID):
     host_name = 'Not Found'
 
     try:
-        print soup.find_all("h3", {"class" : "row-space-1"})
-        host_name = soup.find_all("h3", {"class" : "row-space-1"})[0].text.strip("\n ").encode('utf8')
-        host_name = host_name.split(", ")[1]
+#         host_name = soup.find_all("h3", {"class" : "row-space-1"})[0].text.strip("\n ").encode('utf8')
+#         host_name = host_name.split(", ")[1]
+        host_name = soup.find("h3", {"class" : "row-space-1"}).find("a").text
         return host_name
 
     except:
@@ -416,7 +415,7 @@ def getHostResponse(soup, ListingID):
     response_rate, response_time = ['Not Found'] * 2
 
     try:
-        host_member = soup.find_all("div", {"class" : "col-6"})[-1]
+        host_member = soup.find_all("div", {"class" : "row row-condensed space-2"})[1]
         response_rate = host_member.find_all("strong")[0].text.encode('utf8')
         response_time = host_member.find_all("strong")[1].text.encode('utf8')
         return response_rate, response_time
@@ -433,9 +432,8 @@ def getMemberDate(soup, ListingID):
     membership_date = 'Not Found'
 
     try:
-        host_member = soup.find_all("div", {"class" : "col-md-6"})[-2]
-        membership_date = host_member.find_all("div")[1].text.encode('utf8').strip("\n ")
-        membership_date = membership_date.replace("Member since", "")
+        membership_date = soup.find("div", {"class" : "row row-condensed space-2"}).find("div").find_all("span")[2].text
+        membership_date = membership_date.replace("Member since ", "")
         return membership_date
 
     except:
@@ -448,8 +446,8 @@ def singlestar(index, soup):
     Written by Yi
     """
     stars = soup.find_all("div", {"class" : "foreground"})[index]
-    full_star = stars.find_all("i", {"class" : "icon icon-pink icon-beach icon-star"})
-    half_star=  stars.find_all("i", {"class" : "icon icon-pink icon-beach icon-star-half"})
+    full_star = stars.find_all("i", {"class" : "icon-star icon icon-beach icon-star-small"})
+    half_star=  stars.find_all("i", {"class" : "icon-star-half icon icon-beach icon-star-small"})
     total_star = len(full_star)+len(half_star)*0.5
     return total_star
 
