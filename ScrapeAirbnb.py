@@ -669,6 +669,8 @@ def getPriceInfo(tree, ListingID):
 #  Amenities ############################
 #########################################
 def getAmenitiesList(tree, ListingID):
+    
+    import json
     """
     input: xmltree object
     output: list of available amenities
@@ -680,24 +682,18 @@ def getAmenitiesList(tree, ListingID):
     amenities = []
 
     try:
-        #Get Nodes That Contain The Grey Text, So That You Can Search For Sections
-        elements = tree.xpath('//div[@class="row amenities"]/div/span')
 
-        #find The price portion of the page,
-        #then go back up one level and sideways one level
-        for element in elements:
-
-            if element.text.find('Amenities') >= 0:
-                #If you find what you are looking for Go Up One Level Then Go Sideways
-                targetelement = element.getparent().getnext()
-                break
-
-        content = targetelement.getchildren()[0].getchildren()[0].getchildren()[0]
+        soup = bs4.BeautifulSoup(tostring(tree), "lxml")
         
-        if len(content) >= 1:
-            for amenity in content.xpath('.//div/span/span/text()'):
-                amenities.append(amenity.strip())
+        #parse javascript bundle for amenities with true flag
+        parsed = json.loads(soup.find("div", {"class" : "___iso-state___listingbundlejs"})['data-state'])
 
+        for cur_amenities in parsed['listing']['listing_amenities']:
+            if cur_amenities['is_present'] == True:
+                
+                amenities.append(cur_amenities['name'])
+        
+        #print 'Amenities for ', str(ListingID),': ' ,amenities
         return list(set(amenities))
 
     except:
