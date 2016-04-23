@@ -91,7 +91,7 @@ def parse_listing_page(_dat):
 
         soup = bs4.BeautifulSoup(r.text, "lxml")
         
-        parsed = json.loads(soup.find("div", {"class" : "___iso-state___listingbundlejs"})['data-state'])
+        parsed = json.loads(soup.find("script", {"data-mystique-key" : "listingbundlejs"}).text.replace('<!--','').replace('-->',''))
 
         #amenities
         try:
@@ -169,7 +169,7 @@ def parse_listing_page(_dat):
 
 if __name__ == '__main__':
 
-    location = 'Spoleto--Province-of-Perugia--Italy'
+    location = 'Washington--D%252EC%252E--DC--United-States'
     
     #get results
     listings = parse_main_page(location=location, pages=5)
